@@ -1,0 +1,6 @@
+{
+  "name": "YummyProducts",
+  "description": "Enterprise ultra-fast luxury beauty & cosmetics e-commerce platform offering premium body and facial care in Lebanon.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

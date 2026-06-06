@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ShoppingBag, Heart, User, Sparkles, Menu, X, ArrowRight, Star, MoreVertical } from 'lucide-react';
+import { Search, ShoppingBag, Heart, User, Sparkles, Menu, X, ArrowRight, Star, MoreVertical, Clock } from 'lucide-react';
 import { Category, Product } from '../types';
 
 interface HeaderProps {
@@ -30,6 +30,17 @@ export default function Header({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchHistory, setSearchHistory] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('yummy_search_history');
+        return stored ? JSON.parse(stored) : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
 
   // AJAX live predictive search
   const filteredProducts = searchQuery.trim()
@@ -278,6 +289,17 @@ export default function Header({
                 placeholder="Search premium body cream, makhmaria, lipstick..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && searchQuery.trim() !== '') {
+                    const term = searchQuery.trim();
+                    setSearchHistory((prev) => {
+                      const filtered = prev.filter((item) => item.toLowerCase() !== term.toLowerCase());
+                      const updated = [term, ...filtered].slice(0, 6);
+                      localStorage.setItem('yummy_search_history', JSON.stringify(updated));
+                      return updated;
+                    });
+                  }
+                }}
                 className="w-full text-base outline-hidden text-gray-800 placeholder-gray-400"
                 autoFocus
               />
@@ -296,10 +318,43 @@ export default function Header({
             {/* Results display */}
             <div className="max-h-96 overflow-y-auto p-4">
               {searchQuery.trim() === '' ? (
-                <div className="text-center py-6">
-                  <Sparkles className="h-8 w-8 text-pink-300 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gray-500">Search YummyProducts luxury listings</p>
-                  <p className="text-xs text-gray-400 mt-1">Sub-second dynamic results updated in real time</p>
+                <div className="space-y-4 py-2 text-left">
+                  {searchHistory.length > 0 && (
+                    <div className="px-1">
+                      <div className="flex items-center justify-between mb-2.5">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Recent Searches</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSearchHistory([]);
+                            localStorage.setItem('yummy_search_history', JSON.stringify([]));
+                          }}
+                          className="text-[10px] font-bold text-pink-600 hover:text-pink-850 transition-colors uppercase cursor-pointer"
+                        >
+                          Clear History
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {searchHistory.map((historyItem, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              setSearchQuery(historyItem);
+                            }}
+                            className="text-xs font-semibold px-3 py-1.5 bg-pink-50/40 hover:bg-pink-100 text-slate-800 hover:text-pink-700 rounded-xl border border-pink-100/50 transition-all cursor-pointer flex items-center gap-1.5"
+                          >
+                            <Clock className="w-3.5 h-3.5 text-pink-400 shrink-0" />
+                            <span>{historyItem}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="text-center py-6 border-t border-pink-50/40 pt-6">
+                    <Sparkles className="h-7 w-7 text-pink-300 mx-auto mb-2" />
+                    <p className="text-sm font-medium text-gray-500 font-serif">Search YummyProducts luxury listings</p>
+                    <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">Sub-second dynamic results updated in real time</p>
+                  </div>
                 </div>
               ) : filteredProducts.length > 0 ? (
                 <div className="space-y-3">
@@ -310,6 +365,16 @@ export default function Header({
                     <div
                       key={product.id}
                       onClick={() => {
+                        // Save to history on click
+                        const term = searchQuery.trim();
+                        if (term) {
+                          setSearchHistory((prev) => {
+                            const filtered = prev.filter((item) => item.toLowerCase() !== term.toLowerCase());
+                            const updated = [term, ...filtered].slice(0, 6);
+                            localStorage.setItem('yummy_search_history', JSON.stringify(updated));
+                            return updated;
+                          });
+                        }
                         onProductClick(product);
                         setIsSearchOpen(false);
                         setSearchQuery('');

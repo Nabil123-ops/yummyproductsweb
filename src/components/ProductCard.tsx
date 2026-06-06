@@ -9,6 +9,7 @@ interface ProductCardProps {
   onWishlistToggle: () => void;
   onAddToCart: () => void;
   onViewDetails: () => void;
+  onQuickBuy?: () => void;
 }
 
 export default function ProductCard({
@@ -17,6 +18,7 @@ export default function ProductCard({
   onWishlistToggle,
   onAddToCart,
   onViewDetails,
+  onQuickBuy,
 }: ProductCardProps) {
   
   // Calculate discount percentage
@@ -111,37 +113,60 @@ export default function ProductCard({
           </div>
         </div>
 
-        {/* Pricing & Add to Cart button box with absolute responsive safety for mini screens */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-pink-50/80">
-          <div className="min-w-[65px]">
-            {product.salePrice ? (
-              <div className="flex items-baseline gap-1 flex-wrap">
-                <span className="text-base sm:text-lg font-extrabold text-pink-600 tracking-tight">${product.salePrice}</span>
-                <span className="text-[11px] text-gray-400 line-through">${product.price}</span>
-              </div>
-            ) : (
-              <span className="text-base sm:text-lg font-extrabold text-gray-950 block">${product.price}</span>
-            )}
-            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider scale-95 origin-left leading-none mt-0.5">COD / WISH</span>
+        {/* Pricing & Add/Quick Buy buttons box with absolute responsive safety */}
+        <div className="flex flex-col gap-2 pt-3 border-t border-pink-50/80">
+          <div className="flex items-center justify-between">
+            <div>
+              {product.salePrice ? (
+                <div className="flex items-baseline gap-1">
+                  <span className="text-base sm:text-lg font-black text-pink-600 tracking-tight">${product.salePrice}</span>
+                  <span className="text-[11px] text-gray-400 line-through">${product.price}</span>
+                </div>
+              ) : (
+                <span className="text-base sm:text-lg font-black text-gray-950 block">${product.price}</span>
+              )}
+            </div>
+            <span className="text-[8px] xs:text-[9px] text-pink-700 font-extrabold uppercase tracking-widest bg-pink-50 px-1.5 py-0.5 rounded border border-pink-100/40">COD IN LEBANON</span>
           </div>
 
-          <button
-            id={`btn-add-to-cart-${product.id}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCart();
-            }}
-            disabled={outOfStock}
-            className={`px-3.5 py-2 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 focus:outline-hidden shrink-0 cursor-pointer ${
-              outOfStock
-                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 text-white hover:scale-103 active:scale-97 shadow-[0_4px_12px_rgba(236,72,153,0.2)]'
-            }`}
-            aria-label="Add to Cart"
-          >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            <span className="inline">Add</span>
-          </button>
+          <div className="flex gap-1.5 w-full">
+            <button
+              id={`btn-add-to-cart-${product.id}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToCart();
+              }}
+              disabled={outOfStock}
+              className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 flex items-center justify-center gap-1 focus:outline-hidden cursor-pointer ${
+                outOfStock
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  : 'bg-white hover:bg-pink-50/30 text-pink-650 border border-pink-200/60 active:scale-95 shadow-2xs'
+              }`}
+              aria-label="Add to Cart"
+            >
+              <ShoppingCart className="h-3 w-3 shrink-0" />
+              <span>Add</span>
+            </button>
+
+            {onQuickBuy ? (
+              <button
+                id={`btn-quick-buy-${product.id}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onQuickBuy();
+                }}
+                disabled={outOfStock}
+                className={`flex-2 py-2 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all duration-300 flex items-center justify-center gap-1 focus:outline-hidden cursor-pointer ${
+                  outOfStock
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-850 text-white hover:scale-103 active:scale-97 shadow-[0_4px_12px_rgba(236,72,153,0.18)]'
+                }`}
+                aria-label="Quick Buy"
+              >
+                <span>⚡ Quick Buy</span>
+              </button>
+            ) : null}
+          </div>
         </div>
 
       </div>

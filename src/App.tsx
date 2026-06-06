@@ -185,6 +185,30 @@ export default function App() {
     triggerToast(`Added ${quantity}x "${product.name}" to shopping cart! 🛍️`);
   };
 
+  // Quick direct checkout trigger
+  const handleQuickBuy = (product: Product) => {
+    const existingIdx = cartItems.findIndex(item => item.productId === product.id);
+    let updatedCart = [...cartItems];
+
+    if (existingIdx !== -1) {
+      // Keep it inside, if already there, make sure quantity is at least 1
+    } else {
+      updatedCart.push({
+        productId: product.id,
+        productName: product.name,
+        imageUrl: product.imageUrl,
+        price: product.salePrice || product.price,
+        quantity: 1
+      });
+    }
+
+    setCartItems(updatedCart);
+    localStorage.setItem('yummy_cart', JSON.stringify(updatedCart));
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
+    triggerToast(`Direct buying "${product.name}"! Fill out your delivery info below ⚡`);
+  };
+
   const handleUpdateCartQuantity = (productId: string, quantity: number) => {
     if (quantity <= 0) {
       handleRemoveCartItem(productId);
